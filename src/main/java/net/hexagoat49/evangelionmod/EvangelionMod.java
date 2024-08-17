@@ -1,5 +1,10 @@
 package net.hexagoat49.evangelionmod;
 
+import net.hexagoat49.evangelionmod.block.ModBlocks;
+import net.hexagoat49.evangelionmod.item.ModItems;
+import net.minecraft.world.item.CreativeModeTabs;
+import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
+import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
@@ -14,8 +19,9 @@ import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
-import net.neoforged.neoforge.event.server.ServerStartingEvent;
+
+// DOCUMENTATION
+// https://docs.neoforged.net/docs/gettingstarted/
 
 @Mod(EvangelionMod.MOD_ID)
 public class EvangelionMod
@@ -25,11 +31,13 @@ public class EvangelionMod
 
     public EvangelionMod(IEventBus modEventBus, ModContainer modContainer)
     {
-        modEventBus.addListener(this::commonSetup);
         NeoForge.EVENT_BUS.register(this);
 
-        modEventBus.addListener(this::addCreative);
+        ModItems.register(modEventBus);
+        ModBlocks.register(modEventBus);
 
+        modEventBus.addListener(this::commonSetup);
+        modEventBus.addListener(this::addCreative);
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }
 
@@ -38,15 +46,15 @@ public class EvangelionMod
 
     }
 
-    private void addCreative(BuildCreativeModeTabContentsEvent event)
-    {
+    @SubscribeEvent
+    public void onServerStarting(ServerStartingEvent event) {
 
     }
 
-    @SubscribeEvent
-    public void onServerStarting(ServerStartingEvent event)
-    {
-
+    private void addCreative(BuildCreativeModeTabContentsEvent event) {
+        if(event.getTabKey() == CreativeModeTabs.INGREDIENTS) {
+            event.accept(ModItems.DONPOLLO);
+        }
     }
 
     @EventBusSubscriber(modid = MOD_ID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
